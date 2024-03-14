@@ -60,6 +60,19 @@ return {
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
+        defaults = {
+          -- Define the command line arguments for ripgrep
+          vimgrep_arguments = {
+            'rg',
+            '--color=never',
+            '--no-heading',
+            '--with-filename',
+            '--line-number',
+            '--column',
+            '--smart-case',
+            '--ignore-case', -- Add this line for case-insensitive search
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -84,7 +97,13 @@ return {
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
+      --  See `:help telescope.builtin.live_grep()` for information about particular keys
+      vim.keymap.set('n', '<leader>fw', function()
+        builtin.live_grep {
+          type_filter = vim.bo.filetype,
+          prompt_title = 'Buscar en archivos de la misma extensión',
+        }
+      end, { desc = '[fw] Buscar en archivos de la misma extensión' })
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
