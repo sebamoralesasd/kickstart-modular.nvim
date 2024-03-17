@@ -50,6 +50,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- vim: ts=2 sts=2 sw=2 et
 
--- MIS KEYMAPS
+-- NOTE: MIS KEYMAPS
 
-vim.keymap.set('n', '<leader>x', ':bd<CR>', { desc = 'Delete current buffer' })
+vim.keymap.set('n', '<leader>x', '<cmd> bd <CR>', { desc = 'Delete current buffer' })
+-- TODO: mover a alguna config particular de nvim-tree
+vim.keymap.set('n', '<C-n>', '<cmd> NvimTreeToggle <CR>', { desc = 'Toggle nvim-tree' })
