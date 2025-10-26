@@ -19,7 +19,7 @@ return {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'mason-org/mason.nvim', opts = {} },
+      { 'mason-org/mason.nvim', opts = { log_level = vim.log.levels.DEBUG } },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -62,6 +62,12 @@ return {
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
+          -- Función para recortar el archivo de logs a 50k líneas.
+          -- local log_path = vim.lsp.get_log_path()
+          -- local line_count = tonumber(vim.fn.system('wc -l < ' .. log_path))
+          -- local start_line = line_count - 50000
+          -- vim.fn.system('tail -n +' .. start_line .. ' ' .. log_path .. ' > temp.log && mv temp.log ' .. log_path)
+
           -- NOTE: Remember that Lua is a real programming language, and as such it is possible
           -- to define small helper and utility functions so you don't have to repeat yourself.
           --
@@ -198,6 +204,49 @@ return {
       --  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+      vim.lsp.config('lua_ls', {
+        capabilities = capabilities,
+        settings = {
+          Lua = { completion = { callSnippet = 'Replace' } },
+        },
+      })
+
+      -- solargraph
+      vim.lsp.config('solargraph', {
+        capabilities = capabilities,
+        cmd = { 'bundle', 'exec', 'solargraph', 'stdio' },
+        settings = {
+          solargraph = {
+            autoformat = true,
+            completion = true,
+            useBundler = true,
+            diagnostics = true,
+            formatting = true,
+            folding = true,
+            references = true,
+            rename = true,
+            symbols = true,
+          },
+        },
+      })
+
+      vim.lsp.config('rubocop', {
+        capabilities = capabilities,
+        cmd = { 'bundle', 'exec', 'rubocop', '--lsp' },
+      })
+
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = '*.rb',
+        callback = function()
+          vim.lsp.buf.format()
+        end,
+      })
+
+      -- habilitar (autostart) para los dos
+      vim.lsp.enable 'lua_ls'
+      vim.lsp.enable 'rubocop'
+      vim.lsp.enable 'solargraph'
+
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
       --
@@ -220,14 +269,20 @@ return {
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        -- rubocop = {
+        --   cmd = { 'bundle', 'exec', 'rubocop', '--lsp' },
+        -- },
         solargraph = {
-          cmd = { os.getenv 'HOME' .. '/.rbenv/shims/solargraph', 'stdio' },
+          -- cmd = { os.getenv 'HOME' .. '/.rbenv/shims/solargraph', 'stdio' },
+          cmd = { 'bundle', 'exec', 'solargraph', 'stdio' },
           -- root_dir = nvim_lsp.util.root_pattern('Gemfile', '.git', '.'),
           settings = {
             solargraph = {
               autoformat = true,
               completion = true,
-              diagnostic = true,
+              useBundler = true,
+              diagnostics = true,
+              formatting = false,
               folding = true,
               references = true,
               rename = true,
@@ -270,20 +325,20 @@ return {
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-      require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for ts_ls)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
-      }
+      -- require('mason-lspconfig').setup {
+      --   ensure_installed = ensure_installed,
+      --   automatic_installation = false,
+      --   handlers = {
+      --     function(server_name)
+      --       local server = servers[server_name] or {}
+      --       -- This handles overriding only values explicitly passed
+      --       -- by the server configuration above. Useful when disabling
+      --       -- certain features of an LSP (for example, turning off formatting for ts_ls)
+      --       server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+      --       require('lspconfig')[server_name].setup(server)
+      --     end,
+      --   },
+      -- }
     end,
   },
 }
