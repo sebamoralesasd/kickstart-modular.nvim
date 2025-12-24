@@ -33,6 +33,21 @@ return {
         lua = { 'stylua' },
         sh = { 'shfmt', 'shellcheck' },
         bash = { 'shfmt', 'shellcheck' },
+        php = { 'php_cs_fixer' },
+        javascript = { 'prettier' },
+        typescript = { 'prettier' },
+        javascriptreact = { 'prettier' },
+        typescriptreact = { 'prettier' },
+        vue = { 'prettier' },
+        css = { 'prettier' },
+        scss = { 'prettier' },
+        less = { 'prettier' },
+        html = { 'prettier' },
+        json = { 'prettier' },
+        jsonc = { 'prettier' },
+        yaml = { 'prettier' },
+        markdown = { 'prettier' },
+        graphql = { 'prettier' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -42,6 +57,11 @@ return {
       formatters = {
         shfmt = {
           prepend_args = { '-i', '2' },
+        },
+        php_cs_fixer = {
+          command = 'vendor/bin/php-cs-fixer', -- Or the global path to php-cs-fixer
+          -- args = { 'fix', '--stdin', '--using-cache=no', '--path=-' },
+          args = { 'fix', '--rules=@PSR12', '$FILENAME' },
         },
       },
     },

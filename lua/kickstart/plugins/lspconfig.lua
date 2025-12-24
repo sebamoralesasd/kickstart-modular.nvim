@@ -214,7 +214,8 @@ return {
       -- solargraph
       vim.lsp.config('solargraph', {
         capabilities = capabilities,
-        cmd = { 'bundle', 'exec', 'solargraph', 'stdio' },
+        cmd = { 'mise', 'exec', '--', 'bundle', 'exec', 'solargraph', 'stdio' },
+        root_dir = vim.fs.root(0, { 'Gemfile', '.git' }),
         settings = {
           solargraph = {
             autoformat = true,
@@ -235,6 +236,39 @@ return {
         cmd = { 'bundle', 'exec', 'rubocop', '--lsp' },
       })
 
+      vim.lsp.config('phpactor', {
+        cmd = { 'phpactor', 'language-server' },
+        filetypes = { 'php' },
+        root_markers = { '.git', 'composer.json', '.phpactor.json', '.phpactor.yml' },
+        workspace_required = true,
+        init_options = {
+          ['language_server_phpstan.enabled'] = false,
+          ['language_server_psalm.enabled'] = false,
+        },
+      })
+
+      vim.lsp.config('ts_ls', {
+        capabilities = capabilities,
+        filetypes = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+        root_dir = vim.fs.root(0, { 'package.json', 'tsconfig.json', 'jsconfig.json', '.git' }),
+      })
+
+      -- vim.lsp.config('prettier', {
+      --   cmd = { 'npx', 'prettier', '.', '--write' },
+      --   filetypes = {
+      --     'css',
+      --     -- 'graphql',
+      --     'html',
+      --     'js',
+      --     'json',
+      --     'less',
+      --     'md',
+      --     'scss',
+      --     'ts',
+      --     'yaml',
+      --   },
+      -- })
+
       vim.api.nvim_create_autocmd('BufWritePre', {
         pattern = '*.rb',
         callback = function()
@@ -246,6 +280,10 @@ return {
       vim.lsp.enable 'lua_ls'
       vim.lsp.enable 'rubocop'
       vim.lsp.enable 'solargraph'
+      vim.lsp.enable 'gopls'
+      vim.lsp.enable 'phpactor'
+      vim.lsp.enable 'ts_ls'
+      -- vim.lsp.enable 'prettier'
 
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
